@@ -5,7 +5,7 @@ import rospy
 class Snake():
     def __init__(self):
         #refresh rate
-        self.rate = rospy.Rate(18)
+        self.rate = rospy.Rate(16)
         self.isStatic = False
         self.index = 3
 

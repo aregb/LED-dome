@@ -4,10 +4,12 @@ __author__      = "Areg Babayan"
 __license__     = "BSD"
 __version__     = "0.0.6"
 
+import threading
 
 import rospy
 import system.settings as settings
 import smach
+import smach_ros
 from std_msgs.msg import String
 import time
 from neural_presenters.serial.serial_communication import SerialInterface
@@ -45,7 +47,7 @@ class startup(smach.State):
         return self.update_visualization_mode()
 
 
-#currently not implemented, included for the sake of completeness
+#currently not implemented, included as a placeholder
 class meafromserver(smach.State):
     def __init__(self):
         smach.State.__init__(self,outcomes=["nonmea"])
@@ -118,8 +120,6 @@ class text(smach.State):
         rospy.loginfo("executing text state")
         while not settings.CHANGE_REQUESTED and not rospy.is_shutdown():
             if userdata.text != None:
-                print("new text received: ")
-                print(userdata.text)
                 if ("vertical" in userdata.text):
                     userdata.text = userdata.text[9:]
                     data = bytearray([253]) + bytearray([252]) + bytearray(userdata.text,"ascii") #utf-8
@@ -197,7 +197,7 @@ def domecontrol():
                     settings.CHANGE_REQUESTED = True
 
     #initialize subscriber
-    set_visualization_mode_subscriber = rospy.Subscriber("domecontrol", String, set_visualization_mode_callback)
+    set_visualization_mode_subscriber = rospy.Subscriber("cyborg_visual/domecontrol", String, set_visualization_mode_callback)
 
 
     #Open the container
@@ -240,7 +240,10 @@ def domecontrol():
                             "presenter":"sm_presenter"})
                 
     #execute state machine
-    outcome = sm.execute()
+    #outcome = sm.execute()
+    smach_thread = threading.Thread(target=sm.execute)
+    smach_thread.daemon = True
+    smach_thread.start()
 
 if __name__=="__domecontrol__":
     domecontrol()

@@ -55,13 +55,6 @@ class SerialInterface:
            array.append(0)
         array +=led_color_array
         array.append(255)
-        #print("serial com array: ")
-        #print(array[0])
-        #print(array[1])
-        #print(array[2])
-        #print(array[3])
-        #print(array[4])
-        #print(array)
         self.ser.write(array)
 
 
